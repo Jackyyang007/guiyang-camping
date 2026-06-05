@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>贵阳周边露营攻略</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green-900: #1B4332;
+  --green-700: #2D6A4F;
+  --green-500: #40916C;
+  --green-200: #95D5B2;
+  --green-50: #e8f5e9;
+  --orange: #E76F51;
+  --orange-light: #F4A261;
+  --gray-100: #f8f9fa;
+  --gray-200: #e9ecef;
+  --gray-400: #adb5bd;
+  --gray-600: #6c757d;
+  --gray-800: #343a40;
+  --text: #1a1a2e;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  background: var(--gray-100);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, var(--green-900) 0%, var(--green-700) 50%, var(--green-500) 100%);
+  color: white;
+  padding: 24px 20px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+.header h1 i { color: var(--orange-light); }
+.header-subtitle {
+  font-size: 13px;
+  opacity: 0.85;
+  margin-left: auto;
+}
+
+/* Search & Controls */
+.controls {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.search-wrap {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+.search-wrap i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-400);
+}
+.search-wrap input {
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  background: white;
+}
+.search-wrap input:focus { border-color: var(--green-500); }
+
+.sort-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--gray-600);
+}
+.sort-wrap select {
+  padding: 8px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  outline: none;
+  background: white;
+  cursor: pointer;
+}
+
+/* Filter Tags */
+.filter-bar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+  color: var(--gray-600);
+  user-select: none;
+}
+.filter-tag:hover { border-color: var(--green-200); color: var(--green-700); }
+.filter-tag.active {
+  background: var(--green-700);
+  color: white;
+  border-color: var(--green-700);
+}
+.filter-tag i { font-size: 11px; }
+
+/* Result count */
+.result-bar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 8px;
+  font-size: 13px;
+  color: var(--gray-600);
+}
+.result-bar span { font-weight: 600; color: var(--green-700); }
+
+/* Map */
+.map-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 16px;
+}
+#map {
+  height: 380px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  z-index: 1;
+}
+.leaflet-popup-content h3 { font-size: 15px; margin-bottom: 4px; color: var(--green-700); }
+.leaflet-popup-content p { font-size: 12px; color: var(--gray-600); margin-bottom: 4px; }
+.leaflet-popup-content .popup-tags { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 3px; }
+.leaflet-popup-content .popup-tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  background: var(--green-50);
+  color: var(--green-700);
+  border-radius: 10px;
+}
+.leaflet-popup-content .popup-rating { color: var(--orange); font-size: 13px; }
+
+/* Cards Grid */
+.cards-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+}
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+/* Card */
+.card {
+  background: white;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.card-img {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+  background: var(--gray-200);
+}
+.card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+.card:hover .card-img img { transform: scale(1.05); }
+.card-img .distance-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0,0,0,0.65);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  backdrop-filter: blur(4px);
+}
+.card-img .rating-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(255,255,255,0.9);
+  color: var(--orange);
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.card-body { padding: 16px; }
+.card-body h3 {
+  font-size: 16px;
+  margin-bottom: 6px;
+  color: var(--green-900);
+}
+.card-address {
+  font-size: 12px;
+  color: var(--gray-600);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.card-desc {
+  font-size: 13px;
+  color: var(--gray-800);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.card-facilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.card-facility {
+  font-size: 11px;
+  padding: 3px 10px;
+  background: var(--green-50);
+  color: var(--green-700);
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+.modal-overlay.open { display: flex; align-items: center; justify-content: center; padding: 20px; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.modal {
+  background: white;
+  border-radius: var(--radius);
+  max-width: 680px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp 0.25s ease;
+  box-shadow: var(--shadow-lg);
+}
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: background 0.2s;
+}
+.modal-close:hover { background: rgba(0,0,0,0.7); }
+.modal-img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  display: block;
+}
+.modal-body { padding: 24px; }
+.modal-body h2 {
+  font-size: 22px;
+  color: var(--green-900);
+  margin-bottom: 4px;
+}
+.modal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 12px 0 16px;
+  font-size: 13px;
+  color: var(--gray-600);
+}
+.modal-meta i { width: 16px; color: var(--green-500); }
+.modal-desc {
+  font-size: 14px;
+  line-height: 1.8;
+  margin-bottom: 16px;
+  color: var(--gray-800);
+}
+.modal-section { margin-bottom: 20px; }
+.modal-section h4 {
+  font-size: 14px;
+  color: var(--green-700);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.modal-transport {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--gray-800);
+  padding: 12px;
+  background: var(--gray-100);
+  border-radius: var(--radius-sm);
+}
+.modal-facilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.modal-facility {
+  padding: 6px 14px;
+  background: var(--green-50);
+  color: var(--green-700);
+  border-radius: 20px;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.modal-tips {
+  padding: 14px;
+  background: #fff8e1;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: #856404;
+  line-height: 1.7;
+}
+.modal-tips i { color: var(--orange-light); margin-right: 6px; }
+
+/* Empty state */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--gray-400);
+}
+.empty-state i { font-size: 48px; margin-bottom: 16px; }
+.empty-state p { font-size: 15px; }
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--gray-400);
+  font-size: 12px;
+  border-top: 1px solid var(--gray-200);
+}
+
+/* Back to top */
+.back-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--green-700);
+  color: white;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: background 0.2s;
+}
+.back-top:hover { background: var(--green-900); }
+.back-top.show { display: flex; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header { padding: 16px 16px 14px; }
+  .header h1 { font-size: 18px; }
+  .header-subtitle { display: none; }
+  .controls { padding: 12px 16px; }
+  .filter-bar { padding: 0 16px 10px; }
+  .map-wrap { padding: 0 12px 12px; }
+  #map { height: 280px; border-radius: var(--radius-sm); }
+  .cards-wrap { padding: 0 12px 30px; }
+  .cards-grid { grid-template-columns: 1fr; gap: 14px; }
+  .card-img { height: 150px; }
+  .modal { margin: 10px; max-height: 85vh; }
+  .modal-img { height: 180px; }
+  .modal-body { padding: 16px; }
+  .modal-body h2 { font-size: 18px; }
+  .back-top { bottom: 16px; right: 16px; width: 38px; height: 38px; font-size: 15px; }
+}
+@media (max-width: 480px) {
+  .controls { flex-direction: column; }
+  .sort-wrap { width: 100%; }
+  .sort-wrap select { flex: 1; }
+}
+
+/* Scrollbar */
+.modal::-webkit-scrollbar { width: 6px; }
+.modal::-webkit-scrollbar-thumb { background: var(--gray-400); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <h1><i class="fas fa-campground"></i> 贵阳周边露营攻略</h1>
+    <span class="header-subtitle"><i class="fas fa-map-pin"></i> 探索城市周边的自然秘境</span>
+  </div>
+</header>
+
+<!-- Controls -->
+<div class="controls">
+  <div class="search-wrap">
+    <i class="fas fa-search"></i>
+    <input type="text" id="searchInput" placeholder="搜索露营地名称..." oninput="renderCards()">
+  </div>
+  <div class="sort-wrap">
+    <i class="fas fa-sort-amount-down"></i>
+    <select id="sortSelect" onchange="renderCards()">
+      <option value="default">默认排序</option>
+      <option value="distance">距离最近</option>
+      <option value="rating">评分最高</option>
+    </select>
+  </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar" id="filterBar"></div>
+
+<!-- Result Count -->
+<div class="result-bar">共 <span id="resultCount">0</span> 个露营地</div>
+
+<!-- Map -->
+<div class="map-wrap"><div id="map"></div></div>
+
+<!-- Cards -->
+<div class="cards-wrap">
+  <div class="cards-grid" id="cardsGrid"></div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <i class="fas fa-tree"></i> 享受自然 · 无痕露营 · 安全第一
+</footer>
+
+<!-- Back to Top -->
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalContent">
+    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    <img class="modal-img" id="modalImg" src="" alt="">
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ========== DATA ==========
+const campsites = [
+  {
+    id: 1,
+    name: '高坡云顶草原',
+    address: '贵阳市花溪区高坡苗族乡',
+    lat: 26.35,
+    lng: 106.72,
+    distance: 50,
+    transport: '自驾：贵阳市区→花溪→青岩→高坡乡，约1小时车程。也可在花溪乘坐至高坡的班车，但班次较少，建议自驾。导航搜索"高坡云顶草原"即可。',
+    description: '海拔1600米的高山草甸，视野极为开阔，是贵阳最经典的星空露营目的地。夏季气温比市区低5-8℃，夜晚可以看到壮丽的银河。草原上有风车群，日落和日出都非常震撼。',
+    images: [
+      'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&q=80',
+      'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80',
+      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80'
+    ],
+    facilities: ['停车场', '水源', '烧烤区', '租赁装备'],
+    rating: 4.7,
+    tips: '① 海拔高，夜间温度低至10℃左右，务必带保暖睡袋和外套 ② 无商业配套设施，需自带食材和饮用水 ③ 雨后道路泥泞，建议SUV车型 ④ 最佳季节4-10月，7-8月观星效果最佳'
+  },
+  {
+    id: 2,
+    name: '红枫湖露营基地',
+    address: '贵阳市清镇市红枫湖镇',
+    lat: 26.52,
+    lng: 106.38,
+    distance: 30,
+    transport: '自驾：贵阳市区→金清大道→红枫湖景区，约40分钟。也可在贵阳金阳客车站乘至清镇的班车，在红枫湖站下。',
+    description: '红枫湖是贵州最大的人工湖之一，湖中有众多岛屿，湖岸线蜿蜒曲折。湖边有多个成熟的露营基地，可以租用帐篷和烧烤设备。湖面晨雾弥漫，景色如画，适合摄影爱好者。',
+    images: [
+      'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
+      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80'
+    ],
+    facilities: ['停车场', '卫生间', '水源', '烧烤区', '淋浴', '装备租赁'],
+    rating: 4.3,
+    tips: '① 周末人多，建议周五下午提前到达占位 ② 湖边蚊虫多，带驱蚊水 ③ 可钓鱼（需自带渔具） ④ 有农家乐可提供餐饮补给'
+  },
+  {
+    id: 3,
+    name: '百花湖',
+    address: '贵阳市观山湖区百花湖乡',
+    lat: 26.68,
+    lng: 106.48,
+    distance: 25,
+    transport: '自驾：贵阳市区→观山湖区→百花湖乡，约35分钟。公交可乘K56路至百花湖站。',
+    description: '百花湖以湖光山色著称，湖水清澈，四周群山环绕，秋季层林尽染尤为美丽。湖边有多处平缓草地适合扎营，环境安静，适合周末家庭出游和休闲露营。',
+    images: [
+      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80',
+      'https://images.unsplash.com/photo-1440588424189-426f09fa6f71?w=800&q=80'
+    ],
+    facilities: ['停车场', '卫生间', '水源', '烧烤区', '淋浴'],
+    rating: 4.4,
+    tips: '① 景区管理较规范，有固定露营区域 ② 可租用皮划艇游玩 ③ 周边有农家乐和民宿 ④ 建议提前电话确认营地开放情况'
+  },
+  {
+    id: 4,
+    name: '南江大峡谷',
+    address: '贵阳市开阳县南江乡',
+    lat: 27.05,
+    lng: 107.00,
+    distance: 48,
+    transport: '自驾：贵阳市区→贵开路→南江乡，约1小时。也可在贵阳客运东站乘至开阳的班车，在南江大峡谷站下。',
+    description: '南江大峡谷以雄奇险峻的喀斯特峡谷地貌闻名，景区内有专门的露营区，位于峡谷平坦地带。白天可徒步探险、玩漂流，夜晚听峡谷溪流声入眠，是户外爱好者的天堂。',
+    images: [
+      'https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=80',
+      'https://images.unsplash.com/photo-1433086968088-10d3a3f366a2?w=800&q=80'
+    ],
+    facilities: ['停车场', '卫生间', '水源', '烧烤区', '淋浴', '装备租赁', '电源'],
+    rating: 4.6,
+    tips: '① 景区收门票（约60元/人），露营需另付费 ② 夏季漂流项目很推荐 ③ 峡谷内信号较弱，提前下载离线地图 ④ 注意防洪，雨季勿在河边扎营'
+  },
+  {
+    id: 5,
+    name: '香纸沟',
+    address: '贵阳市乌当区新堡乡',
+    lat: 26.73,
+    lng: 106.88,
+    distance: 38,
+    transport: '自驾：贵阳市区→乌当→新堡乡→香纸沟，约50分钟。也可在乌当区乘中巴前往。',
+    description: '香纸沟以传统的古法造纸文化闻名，沟内溪水潺潺，竹林茂密，环境清幽。沿溪流有多个适合扎营的平缓地带，夏季溯溪玩水非常惬意，文化氛围与自然风光兼具。',
+    images: [
+      'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80',
+      'https://images.unsplash.com/photo-1510312305650-0f1f82e9d3c5?w=800&q=80'
+    ],
+    facilities: ['停车场', '水源', '烧烤区'],
+    rating: 4.1,
+    tips: '① 设施相对简陋，建议自带便携厕所 ② 溪水可冰镇饮料，非常清凉 ③ 有农家可提供简单餐饮 ④ 雨后水位上涨注意安全'
+  },
+  {
+    id: 6,
+    name: '龙里油画大草原',
+    address: '黔南州龙里县龙山镇',
+    lat: 26.48,
+    lng: 107.00,
+    distance: 48,
+    transport: '自驾：贵阳市区→贵新高速→龙里站下→油画大草原，约50分钟。也可在贵阳客运站乘至龙里的班车。',
+    description: '高山台地草原，因风光如油画般美丽而得名。视野开阔，草甸连绵起伏，远处群山如黛。景区内有完善的露营配套设施，还有滑草、骑马等娱乐项目，适合家庭和团队活动。',
+    images: [
+      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80'
+    ],
+    facilities: ['停车场', '卫生间', '水源', '烧烤区', '装备租赁', '电源', '淋浴'],
+    rating: 4.5,
+    tips: '① 景区设施完善，适合新手露营 ② 海拔约1500米，注意防晒 ③ 节假日有篝火晚会活动 ④ 可租用帐篷，轻装前往'
+  },
+  {
+    id: 7,
+    name: '紫江地缝',
+    address: '贵阳市开阳县紫江乡',
+    lat: 26.90,
+    lng: 107.10,
+    distance: 62,
+    transport: '自驾：贵阳市区→开阳→紫江乡，约1小时20分钟。路况一般，建议驾驶SUV。公共交通不便，建议结伴自驾。',
+    description: '紫江地缝是一条幽深的喀斯特地缝峡谷，两岸悬崖峭壁，谷底溪流清澈。徒步穿越需要一定体力，但风景绝美，是探险型露营爱好者的理想目的地。谷内有多处可扎营的河滩。',
+    images: [
+      'https://images.unsplash.com/photo-1433086968088-10d3a3f366a2?w=800&q=80',
+      'https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=80'
+    ],
+    facilities: ['停车场', '水源'],
+    rating: 4.2,
+    tips: '① 原生状态，无商业设施，装备需自带齐全 ② 徒步路线约6-8公里，需一定体力 ③ 谷底潮湿，帐篷需注意防潮 ④ 建议结伴而行，勿独自前往'
+  },
+  {
+    id: 8,
+    name: '开阳十里画廊',
+    address: '贵阳市开阳县禾丰乡',
+    lat: 27.05,
+    lng: 106.95,
+    distance: 45,
+    transport: '自驾：贵阳市区→贵开路→南江→禾丰乡，约55分钟。沿路风光优美，适合骑行前往。',
+    description: '十里画廊是开阳青龙河沿岸的田园风光带，春季油菜花开、秋季稻谷金黄，如同一幅流动的山水画卷。河边有多个露营点，可以体验乡村露营的宁静与惬意。',
+    images: [
+      'https://images.unsplash.com/photo-1440588424189-426f09fa6f71?w=800&q=80',
+      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80'
+    ],
+    facilities: ['停车场', '卫生间', '水源', '烧烤区', '淋浴'],
+    rating: 4.3,
+    tips: '① 春季3-4月油菜花季最美 ② 周边有特色农家乐，可品尝农家菜 ③ 青龙河可钓鱼和划船 ④ 建议结合南江大峡谷一同游玩'
+  },
+  {
+    id: 9,
+    name: '乌当偏坡',
+    address: '贵阳市乌当区偏坡布依族乡',
+    lat: 26.68,
+    lng: 106.85,
+    distance: 28,
+    transport: '自驾：贵阳市区→乌当→偏坡乡，约35分钟。可乘乌当至偏坡的中巴班车。',
+    description: '偏坡是距贵阳较近的布依族村寨，保留了浓厚的民族风情。村寨周边有平整的草地适合露营，环境安静、民风淳朴。可以体验布依族民俗文化，品尝特色美食。',
+    images: [
+      'https://images.unsplash.com/photo-1510312305650-0f1f82e9d3c5?w=800&q=80',
+      'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80'
+    ],
+    facilities: ['停车场', '卫生间', '水源', '烧烤区'],
+    rating: 4.0,
+    tips: '① 适合周末短途亲子露营 ② 村寨有民宿可作为备选 ③ 可体验布依族手工和民俗 ④ 附近有小溪适合小朋友玩水'
+  },
+  {
+    id: 10,
+    name: '清镇鸭池河',
+    address: '贵阳市清镇市鸭池河村',
+    lat: 26.78,
+    lng: 106.18,
+    distance: 58,
+    transport: '自驾：贵阳市区→清镇→鸭池河，约1小时10分钟。全程柏油路，但部分路段山路弯多，谨慎驾驶。',
+    description: '鸭池河是乌江上游的一段河谷，两岸山势陡峭，河谷深邃，景色壮阔。这里游客较少，保留了原始的自然风貌，适合喜欢清静的露营者。河谷气候温暖，冬季也可露营。',
+    images: [
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      'https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=80'
+    ],
+    facilities: ['停车场', '水源', '烧烤区'],
+    rating: 4.1,
+    tips: '① 设施较原始，需自带全部装备 ② 可体验河谷徒步 ③ 冬季气温较市区高2-3℃，适合秋冬露营 ④ 建议驾驶SUV前往'
+  },
+  {
+    id: 11,
+    name: '修文六广河',
+    address: '贵阳市修文县六广镇',
+    lat: 26.95,
+    lng: 106.52,
+    distance: 52,
+    transport: '自驾：贵阳市区→修文→六广镇，约1小时。也可在修文县城乘乡镇班车前往。',
+    description: '六广河峡谷是乌江上游的又一精华河段，峡谷幽深，碧水如玉。景区内有游船项目，可乘船游览峡谷风光。河岸有专门的露营区，配套设施逐步完善中。',
+    images: [
+      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80',
+      'https://images.unsplash.com/photo-1510312305650-0f1f82e9d3c5?w=800&q=80'
+    ],
+    facilities: ['停车场', '卫生间', '水源', '烧烤区'],
+    rating: 4.2,
+    tips: '① 可乘船游览峡谷，船票约60元/人 ② 景区内有简易商店，可购买基本补给 ③ 可结合修文阳明文化园一同游玩 ④ 河岸露营注意水位变化'
+  },
+  {
+    id: 12,
+    name: '天河潭',
+    address: '贵阳市花溪区石板镇',
+    lat: 26.45,
+    lng: 106.55,
+    distance: 24,
+    transport: '自驾：贵阳市区→甲秀南路→石板镇→天河潭，约30分钟。公交可乘211路直达。',
+    description: '天河潭是典型的喀斯特自然风景区，集溶洞、瀑布、深潭于一体。景区外围有一些草坪区域可供露营，虽然不似高山草原那般野趣，但胜在距离市区极近，交通方便，适合初次体验露营或轻装出行。',
+    images: [
+      'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80',
+      'https://images.unsplash.com/photo-1433086968088-10d3a3f366a2?w=800&q=80'
+    ],
+    facilities: ['停车场', '卫生间', '水源'],
+    rating: 4.0,
+    tips: '① 景区白天游客多，建议傍晚后露营体验更好 ② 可在花溪路上顺路采购食材 ③ 距市区近，适合应急或半日游 ④ 景区内有溶洞景观可游览'
+  },
+  {
+    id: 13,
+    name: '观山湖·八百虎露营基地',
+    address: '贵阳市观山湖区·八百虎露营基地',
+    lat: 26.63,
+    lng: 106.62,
+    distance: 15,
+    transport: '自驾：贵阳市区出发约半小时车程，导航搜索"八百虎露营基地"即可。位于观山湖区，交通非常便利。',
+    description: '场地管理成熟，营区划分合理。关键是有浅滩且地势平缓，不用担心孩子下水安全问题。水质超级清透，清澈到能看见小鱼苗，河水是活水！水浅安全，可以带上水枪来一场"水战"，玩累了还能在岸边捞小鱼小虾。',
+    images: [
+      'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&q=80',
+      'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80'
+    ],
+    facilities: ['停车场', '水源', '烧烤区'],
+    rating: 4.2,
+    tips: '① 距离市区仅15km，半小时内可达 ② 浅滩平缓，非常适合带娃玩水 ③ 活水水质好，可自带水枪和捞网 ④ 建议早上去占好位置'
+  },
+  {
+    id: 14,
+    name: '贵阳松林村露营基地',
+    address: '贵州省安顺市平坝区松林村香香超市',
+    lat: 26.42,
+    lng: 106.28,
+    distance: 60,
+    transport: '自驾：贵阳市区→沪昆高速→平坝→松林村，约1小时车程。导航搜索"平坝区松林村香香超市"即可到达。',
+    description: '整片草坪松软宽敞，湖水清澈、风光宜人，微风习习。聚餐烧烤、玩水钓鱼、闲谈休憩都很惬意。停车卫生费20元/车，无场地费，可全天游玩。当地还能租麻将、帐篷、天幕，也有各类小吃，带娃也适合，出行超省心。',
+    images: [
+      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80',
+      'https://images.unsplash.com/photo-1510312305650-0f1f82e9d3c5?w=800&q=80'
+    ],
+    facilities: ['停车场', '卫生间', '水源', '烧烤区', '装备租赁'],
+    rating: 4.3,
+    tips: '① 停车卫生费20元/车，无场地费，性价比高 ② 可租帐篷、天幕、麻将，轻装前往 ③ 有小吃摊，不用带太多食物 ④ 草坪宽敞，适合家庭和团体活动'
+  }
+];
+
+// ========== FACILITY CONFIG ==========
+const facilityConfig = [
+  { key: '停车场', icon: 'fa-solid fa-square-parking' },
+  { key: '卫生间', icon: 'fa-solid fa-toilet' },
+  { key: '水源', icon: 'fa-solid fa-faucet' },
+  { key: '烧烤区', icon: 'fa-solid fa-fire' },
+  { key: '淋浴', icon: 'fa-solid fa-shower' },
+  { key: '装备租赁', icon: 'fa-solid fa-tent' },
+  { key: '电源', icon: 'fa-solid fa-bolt' }
+];
+
+// ========== STATE ==========
+let activeFilters = new Set();
+let map = null;
+let markers = [];
+let currentSite = null;
+
+// ========== INIT FILTERS ==========
+function initFilters() {
+  const bar = document.getElementById('filterBar');
+  bar.innerHTML = facilityConfig.map(f =>
+    `<div class="filter-tag" data-key="${f.key}" onclick="toggleFilter('${f.key}')">
+      <i class="${f.icon}"></i> ${f.key}
+    </div>`
+  ).join('');
+}
+
+// ========== TOGGLE FILTER ==========
+function toggleFilter(key) {
+  if (activeFilters.has(key)) activeFilters.delete(key);
+  else activeFilters.add(key);
+  document.querySelectorAll('.filter-tag').forEach(el => {
+    el.classList.toggle('active', activeFilters.has(el.dataset.key));
+  });
+  renderCards();
+}
+
+// ========== RENDER CARDS ==========
+function renderCards() {
+  const query = document.getElementById('searchInput').value.trim().toLowerCase();
+  const sort = document.getElementById('sortSelect').value;
+
+  let filtered = campsites.filter(c => {
+    if (activeFilters.size > 0) {
+      const hasAll = [...activeFilters].every(f => c.facilities.includes(f));
+      if (!hasAll) return false;
+    }
+    if (query) return c.name.includes(query) || c.address.includes(query);
+    return true;
+  });
+
+  if (sort === 'distance') filtered.sort((a, b) => a.distance - b.distance);
+  else if (sort === 'rating') filtered.sort((a, b) => b.rating - a.rating);
+
+  document.getElementById('resultCount').textContent = filtered.length;
+
+  const grid = document.getElementById('cardsGrid');
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty-state">
+      <i class="fa-solid fa-map-pin"></i>
+      <p>没有找到匹配的露营地</p>
+    </div>`;
+  } else {
+    grid.innerHTML = filtered.map(c => {
+      const stars = '⭐'.repeat(Math.round(c.rating));
+      const facs = c.facilities.map(f => {
+        const cfg = facilityConfig.find(x => x.key === f);
+        return `<span class="card-facility"><i class="${cfg ? cfg.icon : ''}"></i> ${f}</span>`;
+      }).join('');
+      return `
+        <div class="card" onclick="openModal(${c.id})">
+          <div class="card-img">
+            <img src="${c.images[0]}" alt="${c.name}" loading="lazy"
+                 onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22600%22><rect fill=%22%2395D5B2%22 width=%22800%22 height=%22600%22/><text x=%22400%22 y=%22300%22 text-anchor=%22middle%22 fill=%22%232D6A4F%22 font-size=%2224%22 font-family=%22sans-serif%22>🏕️ ${c.name}</text></svg>'">
+            <span class="distance-badge"><i class="fa-solid fa-location-dot"></i> ${c.distance}km</span>
+            <span class="rating-badge">${stars}</span>
+          </div>
+          <div class="card-body">
+            <h3>${c.name}</h3>
+            <div class="card-address"><i class="fa-solid fa-map-pin"></i> ${c.address}</div>
+            <div class="card-desc">${c.description}</div>
+            <div class="card-facilities">${facs}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateMapMarkers(filtered);
+}
+
+// ========== MAP ==========
+function initMap() {
+  map = L.map('map', {
+    center: [26.65, 106.63],
+    zoom: 10,
+    zoomControl: true
+  });
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 18
+  }).addTo(map);
+
+  renderCards();
+}
+
+function updateMapMarkers(sites) {
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+
+  const allIds = new Set(sites.map(s => s.id));
+
+  campsites.forEach(c => {
+    if (!allIds.has(c.id)) return;
+    const color = '#E76F51';
+    const icon = L.divIcon({
+      html: `<div style="
+        background:${color};color:white;width:32px;height:32px;border-radius:50%;
+        display:flex;align-items:center;justify-content:center;font-size:14px;
+        border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);
+      "><i class="fa-solid fa-campground"></i></div>`,
+      className: '',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
+    });
+
+    const marker = L.marker([c.lat, c.lng], { icon }).addTo(map);
+    const stars = '⭐'.repeat(Math.round(c.rating));
+    marker.bindPopup(`
+      <h3>${c.name}</h3>
+      <p><i class="fa-solid fa-location-dot"></i> 距市区 ${c.distance}km</p>
+      <p class="popup-rating">${stars}</p>
+      <p>${c.address}</p>
+      <div class="popup-tags">
+        ${c.facilities.map(f => `<span class="popup-tag">${f}</span>`).join('')}
+      </div>
+      <p style="margin-top:6px"><a href="javascript:void(0)" onclick="openModal(${c.id})" style="color:#2D6A4F;font-weight:600;font-size:13px;">查看详情 →</a></p>
+    `);
+    marker.on('click', () => { currentSite = c.id; });
+    markers.push(marker);
+  });
+
+  if (sites.length > 0 && markers.length > 0) {
+    const group = L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.15));
+    if (map.getZoom() > 14) map.setZoom(14);
+  }
+}
+
+// ========== MODAL ==========
+function openModal(id) {
+  const c = campsites.find(s => s.id === id);
+  if (!c) return;
+
+  document.getElementById('modalImg').src = c.images[0] + '&t=' + Date.now();
+  document.getElementById('modalImg').onerror = function() {
+    this.src = 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22600%22><rect fill=%22%2395D5B2%22 width=%22800%22 height=%22600%22/><text x=%22400%22 y=%22300%22 text-anchor=%22middle%22 fill=%22%232D6A4F%22 font-size=%2230%22 font-family=%22sans-serif%22>🏕️ ' + c.name + '</text></svg>';
+  };
+
+  const stars = '⭐'.repeat(Math.round(c.rating));
+  const facs = c.facilities.map(f => {
+    const cfg = facilityConfig.find(x => x.key === f);
+    return `<span class="modal-facility"><i class="${cfg.icon}"></i> ${f}</span>`;
+  }).join('');
+
+  document.getElementById('modalBody').innerHTML = `
+    <h2>${c.name}</h2>
+    <div class="modal-meta">
+      <span><i class="fa-solid fa-map-pin"></i> ${c.address}</span>
+      <span><i class="fa-solid fa-location-dot"></i> 距市区 ${c.distance}km</span>
+      <span>${stars}</span>
+    </div>
+    <div class="modal-desc">${c.description}</div>
+
+    <div class="modal-section">
+      <h4><i class="fa-solid fa-car"></i> 交通指引</h4>
+      <div class="modal-transport">${c.transport}</div>
+    </div>
+
+    <div class="modal-section">
+      <h4><i class="fa-solid fa-kitchen-set"></i> 生活设施</h4>
+      <div class="modal-facilities">${facs}</div>
+    </div>
+
+    <div class="modal-section">
+      <h4><i class="fa-solid fa-circle-info"></i> 温馨提示</h4>
+      <div class="modal-tips">${c.tips}</div>
+    </div>
+  `;
+
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  map.invalidateSize();
+
+  // Scroll map to this campsite
+  if (map) map.setView([c.lat, c.lng], 13);
+}
+
+function closeModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  if (map) map.invalidateSize();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ========== BACK TO TOP ==========
+window.addEventListener('scroll', () => {
+  document.getElementById('backTop').classList.toggle('show', window.scrollY > 400);
+});
+
+// ========== INIT ==========
+initFilters();
+initMap();
+
+// ========== MARKER TOGGLE FROM OUTSIDE ==========
+// Expose openModal globally (already declared at top level)
+window.openModal = openModal;
+</script>
+</body>
+</html>
