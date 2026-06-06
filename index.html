@@ -16,8 +16,13 @@
   --green-50: #e8f5e9;
   --orange: #E76F51;
   --orange-light: #F4A261;
-  --gray-100: #f8f9fa;
-  --gray-200: #e9ecef;
+  --orange-deep: #D55B3A;
+  --warm-sand: #C4956A;
+  --cream: #FDF6ED;
+  --warm-bg: #F5EDE4;
+  --warm-border: #E8DED4;
+  --gray-100: var(--warm-bg);
+  --gray-200: var(--warm-border);
   --gray-400: #adb5bd;
   --gray-600: #6c757d;
   --gray-800: #343a40;
@@ -37,7 +42,7 @@ body {
 
 /* Banner */
 .banner {
-  background: linear-gradient(135deg, var(--green-900) 0%, var(--green-700) 50%, var(--green-500) 100%);
+  background: linear-gradient(135deg, var(--green-900) 0%, var(--green-700) 25%, var(--warm-sand) 50%, var(--orange-light) 75%, var(--orange) 100%);
   color: white;
   padding: 32px 20px 24px;
 }
@@ -59,7 +64,7 @@ body {
   align-items: center;
   gap: 10px;
 }
-.banner h1 .logo-icon { color: var(--orange-light); flex-shrink: 0; }
+.banner h1 .logo-icon { color: var(--orange); flex-shrink: 0; }
 .banner-subtitle { font-size: 13px; opacity: 0.85; }
 
 /* Banner Search */
@@ -82,12 +87,12 @@ body {
   border-radius: var(--radius-sm);
   font-size: 14px;
   outline: none;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255,248,240,0.2);
   color: white;
   transition: background 0.2s;
 }
-.banner-search input::placeholder { color: rgba(255,255,255,0.6); }
-.banner-search input:focus { background: rgba(255,255,255,0.35); }
+.banner-search input::placeholder { color: rgba(255,255,255,0.65); }
+.banner-search input:focus { background: rgba(255,248,240,0.35); }
 
 /* Controls */
 .controls {
@@ -112,7 +117,7 @@ body {
   border-radius: var(--radius-sm);
   font-size: 13px;
   outline: none;
-  background: white;
+  background: #FFFAF5;
   cursor: pointer;
 }
 
@@ -135,15 +140,15 @@ body {
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s;
-  background: white;
+  background: #FFFAF5;
   color: var(--gray-600);
   user-select: none;
 }
-.filter-tag:hover { border-color: var(--green-200); color: var(--green-700); }
+.filter-tag:hover { border-color: var(--orange-light); color: var(--orange); }
 .filter-tag.active {
-  background: var(--green-700);
+  background: var(--orange);
   color: white;
-  border-color: var(--green-700);
+  border-color: var(--orange);
 }
 .filter-tag i { font-size: 11px; }
 
@@ -155,7 +160,7 @@ body {
   font-size: 13px;
   color: var(--gray-600);
 }
-.result-bar span { font-weight: 600; color: var(--green-700); }
+.result-bar span { font-weight: 600; color: var(--orange); }
 
 /* Map */
 .map-wrap {
@@ -169,13 +174,13 @@ body {
   box-shadow: var(--shadow);
   z-index: 1;
 }
-.leaflet-popup-content h3 { font-size: 15px; margin-bottom: 4px; color: var(--green-700); }
+.leaflet-popup-content h3 { font-size: 15px; margin-bottom: 4px; color: var(--green-900); }
 .leaflet-popup-content p { font-size: 12px; color: var(--gray-600); margin-bottom: 4px; }
 .leaflet-popup-content .popup-tags { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 3px; }
 .leaflet-popup-content .popup-tag {
   font-size: 10px;
   padding: 2px 8px;
-  background: var(--green-50);
+  background: var(--cream);
   color: var(--green-700);
   border-radius: 10px;
 }
@@ -198,13 +203,13 @@ body {
   background: white;
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: var(--shadow);
+  box-shadow: 0 2px 12px rgba(196,149,106,0.12);
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 .card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 8px 30px rgba(196,149,106,0.18);
 }
 .card-img {
   position: relative;
@@ -256,6 +261,7 @@ body {
   align-items: center;
   gap: 4px;
 }
+.card-address i { color: var(--orange); }
 .card-desc {
   font-size: 13px;
   color: var(--gray-800);
@@ -274,7 +280,7 @@ body {
 .card-facility {
   font-size: 11px;
   padding: 3px 10px;
-  background: var(--green-50);
+  background: var(--cream);
   color: var(--green-700);
   border-radius: 10px;
   display: inline-flex;
@@ -297,7 +303,7 @@ body {
 @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
 .modal {
-  background: white;
+  background: #FFFAF5;
   border-radius: var(--radius);
   max-width: 680px;
   width: 100%;
@@ -346,7 +352,7 @@ body {
   font-size: 13px;
   color: var(--gray-600);
 }
-.modal-meta i { width: 16px; color: var(--green-500); }
+.modal-meta i { width: 16px; color: var(--orange); }
 .modal-desc {
   font-size: 14px;
   line-height: 1.8;
@@ -356,7 +362,7 @@ body {
 .modal-section { margin-bottom: 20px; }
 .modal-section h4 {
   font-size: 14px;
-  color: var(--green-700);
+  color: var(--orange-deep);
   margin-bottom: 8px;
   display: flex;
   align-items: center;
@@ -377,7 +383,7 @@ body {
 }
 .modal-facility {
   padding: 6px 14px;
-  background: var(--green-50);
+  background: var(--cream);
   color: var(--green-700);
   border-radius: 20px;
   font-size: 13px;
@@ -422,7 +428,7 @@ body {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--green-700);
+  background: var(--orange);
   color: white;
   border: none;
   font-size: 18px;
@@ -434,7 +440,7 @@ body {
   z-index: 100;
   transition: background 0.2s;
 }
-.back-top:hover { background: var(--green-900); }
+.back-top:hover { background: var(--orange-deep); }
 .back-top.show { display: flex; }
 
 /* Responsive */
@@ -595,91 +601,6 @@ const campsites = [
     tips: '① 景区管理较规范，有固定露营区域 ② 可租用皮划艇游玩 ③ 周边有农家乐和民宿 ④ 建议提前电话确认营地开放情况'
   },
   {
-    id: 4,
-    name: '南江大峡谷',
-    address: '贵阳市开阳县南江乡',
-    lat: 27.05,
-    lng: 107.00,
-    distance: 48,
-    transport: '自驾：贵阳市区→贵开路→南江乡，约1小时。也可在贵阳客运东站乘至开阳的班车，在南江大峡谷站下。',
-    description: '南江大峡谷以雄奇险峻的喀斯特峡谷地貌闻名，景区内有专门的露营区，位于峡谷平坦地带。白天可徒步探险、玩漂流，夜晚听峡谷溪流声入眠，是户外爱好者的天堂。',
-    images: [
-      'https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=80',
-      'https://images.unsplash.com/photo-1433086968088-10d3a3f366a2?w=800&q=80'
-    ],
-    facilities: ['停车场', '卫生间', '水源', '烧烤区', '淋浴', '装备租赁', '电源'],
-    rating: 4.6,
-    tips: '① 景区收门票（约60元/人），露营需另付费 ② 夏季漂流项目很推荐 ③ 峡谷内信号较弱，提前下载离线地图 ④ 注意防洪，雨季勿在河边扎营'
-  },
-  {
-    id: 5,
-    name: '香纸沟',
-    address: '贵阳市乌当区新堡乡',
-    lat: 26.73,
-    lng: 106.88,
-    distance: 38,
-    transport: '自驾：贵阳市区→乌当→新堡乡→香纸沟，约50分钟。也可在乌当区乘中巴前往。',
-    description: '香纸沟以传统的古法造纸文化闻名，沟内溪水潺潺，竹林茂密，环境清幽。沿溪流有多个适合扎营的平缓地带，夏季溯溪玩水非常惬意，文化氛围与自然风光兼具。',
-    images: [
-      'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80',
-      'https://images.unsplash.com/photo-1510312305650-0f1f82e9d3c5?w=800&q=80'
-    ],
-    facilities: ['停车场', '水源', '烧烤区'],
-    rating: 4.1,
-    tips: '① 设施相对简陋，建议自带便携厕所 ② 溪水可冰镇饮料，非常清凉 ③ 有农家可提供简单餐饮 ④ 雨后水位上涨注意安全'
-  },
-  {
-    id: 6,
-    name: '龙里油画大草原',
-    address: '黔南州龙里县龙山镇',
-    lat: 26.48,
-    lng: 107.00,
-    distance: 48,
-    transport: '自驾：贵阳市区→贵新高速→龙里站下→油画大草原，约50分钟。也可在贵阳客运站乘至龙里的班车。',
-    description: '高山台地草原，因风光如油画般美丽而得名。视野开阔，草甸连绵起伏，远处群山如黛。景区内有完善的露营配套设施，还有滑草、骑马等娱乐项目，适合家庭和团队活动。',
-    images: [
-      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80',
-      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80'
-    ],
-    facilities: ['停车场', '卫生间', '水源', '烧烤区', '装备租赁', '电源', '淋浴'],
-    rating: 4.5,
-    tips: '① 景区设施完善，适合新手露营 ② 海拔约1500米，注意防晒 ③ 节假日有篝火晚会活动 ④ 可租用帐篷，轻装前往'
-  },
-  {
-    id: 7,
-    name: '紫江地缝',
-    address: '贵阳市开阳县紫江乡',
-    lat: 26.90,
-    lng: 107.10,
-    distance: 62,
-    transport: '自驾：贵阳市区→开阳→紫江乡，约1小时20分钟。路况一般，建议驾驶SUV。公共交通不便，建议结伴自驾。',
-    description: '紫江地缝是一条幽深的喀斯特地缝峡谷，两岸悬崖峭壁，谷底溪流清澈。徒步穿越需要一定体力，但风景绝美，是探险型露营爱好者的理想目的地。谷内有多处可扎营的河滩。',
-    images: [
-      'https://images.unsplash.com/photo-1433086968088-10d3a3f366a2?w=800&q=80',
-      'https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=80'
-    ],
-    facilities: ['停车场', '水源'],
-    rating: 4.2,
-    tips: '① 原生状态，无商业设施，装备需自带齐全 ② 徒步路线约6-8公里，需一定体力 ③ 谷底潮湿，帐篷需注意防潮 ④ 建议结伴而行，勿独自前往'
-  },
-  {
-    id: 8,
-    name: '开阳十里画廊',
-    address: '贵阳市开阳县禾丰乡',
-    lat: 27.05,
-    lng: 106.95,
-    distance: 45,
-    transport: '自驾：贵阳市区→贵开路→南江→禾丰乡，约55分钟。沿路风光优美，适合骑行前往。',
-    description: '十里画廊是开阳青龙河沿岸的田园风光带，春季油菜花开、秋季稻谷金黄，如同一幅流动的山水画卷。河边有多个露营点，可以体验乡村露营的宁静与惬意。',
-    images: [
-      'https://images.unsplash.com/photo-1440588424189-426f09fa6f71?w=800&q=80',
-      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80'
-    ],
-    facilities: ['停车场', '卫生间', '水源', '烧烤区', '淋浴'],
-    rating: 4.3,
-    tips: '① 春季3-4月油菜花季最美 ② 周边有特色农家乐，可品尝农家菜 ③ 青龙河可钓鱼和划船 ④ 建议结合南江大峡谷一同游玩'
-  },
-  {
     id: 9,
     name: '乌当偏坡',
     address: '贵阳市乌当区偏坡布依族乡',
@@ -729,23 +650,6 @@ const campsites = [
     facilities: ['停车场', '卫生间', '水源', '烧烤区'],
     rating: 4.2,
     tips: '① 可乘船游览峡谷，船票约60元/人 ② 景区内有简易商店，可购买基本补给 ③ 可结合修文阳明文化园一同游玩 ④ 河岸露营注意水位变化'
-  },
-  {
-    id: 12,
-    name: '天河潭',
-    address: '贵阳市花溪区石板镇',
-    lat: 26.45,
-    lng: 106.55,
-    distance: 24,
-    transport: '自驾：贵阳市区→甲秀南路→石板镇→天河潭，约30分钟。公交可乘211路直达。',
-    description: '天河潭是典型的喀斯特自然风景区，集溶洞、瀑布、深潭于一体。景区外围有一些草坪区域可供露营，虽然不似高山草原那般野趣，但胜在距离市区极近，交通方便，适合初次体验露营或轻装出行。',
-    images: [
-      'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80',
-      'https://images.unsplash.com/photo-1433086968088-10d3a3f366a2?w=800&q=80'
-    ],
-    facilities: ['停车场', '卫生间', '水源'],
-    rating: 4.0,
-    tips: '① 景区白天游客多，建议傍晚后露营体验更好 ② 可在花溪路上顺路采购食材 ③ 距市区近，适合应急或半日游 ④ 景区内有溶洞景观可游览'
   },
   {
     id: 13,
@@ -921,7 +825,7 @@ function updateMapMarkers(sites) {
       <div class="popup-tags">
         ${c.facilities.map(f => `<span class="popup-tag">${f}</span>`).join('')}
       </div>
-      <p style="margin-top:6px"><a href="javascript:void(0)" onclick="openModal(${c.id})" style="color:#2D6A4F;font-weight:600;font-size:13px;">查看详情 →</a></p>
+      <p style="margin-top:6px"><a href="javascript:void(0)" onclick="openModal(${c.id})" style="color:var(--orange);font-weight:600;font-size:13px;">查看详情 →</a></p>
     `);
     marker.on('click', () => { currentSite = c.id; });
     markers.push(marker);
